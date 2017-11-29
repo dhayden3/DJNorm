@@ -1,5 +1,9 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include <string>
+#include <fstream>
+#include <iostream>
+
+using namespace std;
 
 class MainContentComponent   :  public AudioAppComponent,
                                 public ChangeListener,
@@ -36,13 +40,23 @@ public:
         table.setColour(ListBox::outlineColourId, Colours::grey);
         table.setOutlineThickness(1);
         table.getHeader().addColumn("Song Title", 1, 200, 200, 300, TableHeaderComponent::defaultFlags);
+        table.autoSizeColumn(1);
         table.getHeader().addColumn("Artist", 2, 200, 200, 300, TableHeaderComponent::defaultFlags);
         table.getHeader().addColumn("Genre", 3, 200, 200, 300, TableHeaderComponent::defaultFlags);
         
-        addAndMakeVisible(box);
-        box.addItem("Biking (Solo)",1);
-        box.addItem("No Cap", 2);
+        //table.paintListBoxItem(1, g, 30, 40, false);
         
+        table.addAndMakeVisible(box);
+        addAndMakeVisible(box);
+        
+        box.addItem("Biking (Solo)                   |                      Frank Ocean                   |                      R&B",1);
+        box.addItem("No Cap                   |                      Future & Young Thug                   |                      Rap", 2);
+        box.addItem("24K Magic                   |                      Bruno Mars                   |                      Pop", 3);
+        box.addItem("Rockstar                  |                      Post Malone ft 21 Savage                   |                      Pop", 4);
+        box.addItem("Gucci Gang                   |                      Lil Pump                   |                      Rap", 5);
+        box.addItem("XO Tour Llif3                   |                      Lil Uzi                   |                      Rap", 6);
+        
+        //loadData();
         table.getHeader().setColumnVisible (7, false); // hide the "length" column until the user shows it
         
         table.setMultipleSelectionEnabled(true);
@@ -94,8 +108,8 @@ public:
         openButton.setBounds(50, 35, 100, 25);
         playButton.setBounds(250, 35, 100, 25);
         stopButton.setBounds(450, 35, 100, 25);
-        table.setBounds(50,100,table.getHeader().getTotalWidth(),100);
-        box.setBounds(50,200,100,100);
+        table.setBounds(50,100,table.getHeader().getTotalWidth(),300);
+        box.setBounds(50,125,table.getHeader().getTotalWidth(),250);
     }
     
     void changeListenerCallback (ChangeBroadcaster* source) override
@@ -117,7 +131,18 @@ public:
         if(button == &playButton) playButtonClicked();
         if(button == &stopButton) stopButtonClicked();
     }
+    /*
+    void paint(Graphics& g) override
+    {
+        g.fillAll(Colours::blue);
+    }
     
+    virtual void paintListBoxItem (int rowNumber, Graphics& g,int width, int height, bool rowIsSelected)
+    {
+        g.drawSingleLineText("biking", 10, 30);
+        table.paintListBoxItem(rowNumber,g, width,height, rowIsSelected);
+    }
+     */
 
 private:
     //=============================================================================
@@ -172,7 +197,7 @@ private:
     {
         FileChooser chooser ("Select a Wave file to play...",
                              File::nonexistent,
-                             "*.wav");
+                             "*.mp3");
         
         if (chooser.browseForFileToOpen())
         {
@@ -214,16 +239,36 @@ private:
     }
     
     void loadData(){
-        //XmlDocument dataDoc (String ((const char*) BinaryData::demo_table_data_xml));
+        ifstream file ( "musicdata.csv" );
+        string value;
+        string entry;
         
-        //demoData = dataDoc.getDocumentElement();
+        int count = 1;
+        while(file.good()){
+            getline ( file, value, '\n' );
+            
+            count++;
+        }
+        box.addItem(value,count);
         
-        //dataList = demoData->getChildByName ("DATA");
-        //columnList = demoData->getChildByName ("COLUMNS");
-        
-        //numRows = dataList->getNumChildElements();
     }
-    
+    /*
+    string editData(string val){
+        string spacer = "                  |                      ";
+        size_t start = 0;
+        // look for end of sentence
+        size_t finish = val.find_first_of(",", start);
+        
+        if (finish != string::npos)
+        {
+            // end of sentence was found, do something here.
+            cout << finish
+            // now find start of next sentence
+            start = val.find_first_not_of(" \t\n", finish+1);
+        }
+        return val;
+    }
+    */
     TextButton openButton;
     TextButton playButton;
     TextButton stopButton;
@@ -231,10 +276,7 @@ private:
     
     TableListBox table;
     ComboBox box;
-    //int numRows;
-    //ScopedPointer<XmlElement> demoData;
-    //XmlElement* columnList;
-    //XmlElement* dataList;
+    
    // ComboBoxListener comboBox;
  
     AudioFormatManager formatManager;
