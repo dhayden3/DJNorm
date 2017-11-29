@@ -36,6 +36,24 @@ public:
         stopButton.setColour(TextButton::buttonColourId, Colours::indianred);
         stopButton.setEnabled(false);
         
+        addAndMakeVisible(&songsButton);
+        songsButton.setButtonText("Sort Songs");
+        songsButton.addListener(this);
+        songsButton.setColour(TextButton::buttonColourId, Colours::cadetblue);
+        songsButton.setEnabled(false);
+        
+        addAndMakeVisible(&artistButton);
+        artistButton.setButtonText("Sort Artist");
+        artistButton.addListener(this);
+        artistButton.setColour(TextButton::buttonColourId, Colours::cadetblue);
+        artistButton.setEnabled(false);
+        
+        addAndMakeVisible(&genresButton);
+        genresButton.setButtonText("Sort Genres");
+        genresButton.addListener(this);
+        genresButton.setColour(TextButton::buttonColourId, Colours::cadetblue);
+        genresButton.setEnabled(false);
+        
         addAndMakeVisible(table);
         table.setColour(ListBox::outlineColourId, Colours::grey);
         table.setOutlineThickness(1);
@@ -44,25 +62,23 @@ public:
         table.getHeader().addColumn("Artist", 2, 200, 200, 300, TableHeaderComponent::defaultFlags);
         table.getHeader().addColumn("Genre", 3, 200, 200, 300, TableHeaderComponent::defaultFlags);
         
-        //table.paintListBoxItem(1, g, 30, 40, false);
-        
         table.addAndMakeVisible(box);
         addAndMakeVisible(box);
-        
+        /*
         box.addItem("Biking (Solo)                   |                      Frank Ocean                   |                      R&B",1);
         box.addItem("No Cap                   |                      Future & Young Thug                   |                      Rap", 2);
         box.addItem("24K Magic                   |                      Bruno Mars                   |                      Pop", 3);
         box.addItem("Rockstar                  |                      Post Malone ft 21 Savage                   |                      Pop", 4);
         box.addItem("Gucci Gang                   |                      Lil Pump                   |                      Rap", 5);
         box.addItem("XO Tour Llif3                   |                      Lil Uzi                   |                      Rap", 6);
-        
-        //loadData();
+        */
+        loadData();
         table.getHeader().setColumnVisible (7, false); // hide the "length" column until the user shows it
         
         table.setMultipleSelectionEnabled(true);
         
         //Initialize window settings
-        setSize (650, 600);
+        setSize (1200, 1200);
         
         formatManager.registerBasicFormats();
         transportSource.addChangeListener(this);
@@ -77,6 +93,7 @@ public:
     {
         shutdownAudio();
     }
+   
 
     //==============================================================================
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override
@@ -110,6 +127,9 @@ public:
         stopButton.setBounds(450, 35, 100, 25);
         table.setBounds(50,100,table.getHeader().getTotalWidth(),300);
         box.setBounds(50,125,table.getHeader().getTotalWidth(),250);
+        songsButton.setBounds(50,450,100,25);
+        artistButton.setBounds(250,450,100,25);
+        genresButton.setBounds(450,450,100,25);
     }
     
     void changeListenerCallback (ChangeBroadcaster* source) override
@@ -130,19 +150,16 @@ public:
         if(button == &openButton) openButtonClicked();
         if(button == &playButton) playButtonClicked();
         if(button == &stopButton) stopButtonClicked();
+        if(button == &songsButton) songsButtonClicked();
+        if(button == &artistButton) artistButtonClicked();
+        if(button == &genresButton) genresButtonClicked();
     }
-    /*
+ 
     void paint(Graphics& g) override
     {
-        g.fillAll(Colours::blue);
+        
     }
     
-    virtual void paintListBoxItem (int rowNumber, Graphics& g,int width, int height, bool rowIsSelected)
-    {
-        g.drawSingleLineText("biking", 10, 30);
-        table.paintListBoxItem(rowNumber,g, width,height, rowIsSelected);
-    }
-     */
 
 private:
     //=============================================================================
@@ -209,6 +226,11 @@ private:
                 ScopedPointer<AudioFormatReaderSource> newSource = new AudioFormatReaderSource (reader, true);
                 transportSource.setSource (newSource, 0, nullptr, reader->sampleRate);
                 playButton.setEnabled (true);
+                //Enable sort buttons if file has successfully been uploaded
+                songsButton.setEnabled(true);
+                genresButton.setEnabled(true);
+                artistButton.setEnabled(true);
+                
                 readerSource = newSource.release();
             }
         }
@@ -238,6 +260,21 @@ private:
         }
     }
     
+    void songsButtonClicked(){
+        //call sort alg. for songs
+        
+    }
+    
+    void artistButtonClicked(){
+        //call sort alg. for artist
+
+    }
+    
+    void genresButtonClicked(){
+        //call sort alg. for songs
+
+    }
+    
     void loadData(){
         ifstream file ( "musicdata.csv" );
         string value;
@@ -253,6 +290,7 @@ private:
         
     }
     /*
+     
     string editData(string val){
         string spacer = "                  |                      ";
         size_t start = 0;
@@ -269,12 +307,18 @@ private:
         return val;
     }
     */
+    
     TextButton openButton;
     TextButton playButton;
     TextButton stopButton;
+    TextButton songsButton;
+    TextButton artistButton;
+    TextButton genresButton;
     Label titleLabel;
     
+    //Graphics g;
     TableListBox table;
+    ListBox list;
     ComboBox box;
     
    // ComboBoxListener comboBox;
@@ -289,5 +333,6 @@ private:
 
 // (This function is called by the app startup code to create our main component)
 Component* createMainContentComponent()     { return new MainContentComponent(); }
+
 
 
