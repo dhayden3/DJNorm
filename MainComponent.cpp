@@ -57,21 +57,15 @@ public:
         addAndMakeVisible(table);
         table.setColour(ListBox::outlineColourId, Colours::grey);
         table.setOutlineThickness(1);
-        table.getHeader().addColumn("Song Title", 1, 200, 200, 300, TableHeaderComponent::defaultFlags);
+        table.getHeader().addColumn("Song ID", 1, 200, 200, 300, TableHeaderComponent::defaultFlags);
+        table.getHeader().addColumn("Song Title", 2, 200, 200, 300, TableHeaderComponent::defaultFlags);
         table.autoSizeColumn(1);
-        table.getHeader().addColumn("Artist", 2, 200, 200, 300, TableHeaderComponent::defaultFlags);
-        table.getHeader().addColumn("Genre", 3, 200, 200, 300, TableHeaderComponent::defaultFlags);
+        table.getHeader().addColumn("Artist", 3, 200, 200, 300, TableHeaderComponent::defaultFlags);
+        table.getHeader().addColumn("Genre", 4, 200, 200, 300, TableHeaderComponent::defaultFlags);
         
         table.addAndMakeVisible(box);
         addAndMakeVisible(box);
-        /*
-        box.addItem("Biking (Solo)                   |                      Frank Ocean                   |                      R&B",1);
-        box.addItem("No Cap                   |                      Future & Young Thug                   |                      Rap", 2);
-        box.addItem("24K Magic                   |                      Bruno Mars                   |                      Pop", 3);
-        box.addItem("Rockstar                  |                      Post Malone ft 21 Savage                   |                      Pop", 4);
-        box.addItem("Gucci Gang                   |                      Lil Pump                   |                      Rap", 5);
-        box.addItem("XO Tour Llif3                   |                      Lil Uzi                   |                      Rap", 6);
-        */
+    
         loadData();
         table.getHeader().setColumnVisible (7, false); // hide the "length" column until the user shows it
         
@@ -220,7 +214,12 @@ private:
         {
             File file (chooser.getResult());
             AudioFormatReader* reader = formatManager.createReaderFor (file);
+            // We need to create and call a function that finds the ID of the file
+            // and returns the ID to box.setSelectedId() so that it sets the table to
+            // the opened file
             
+            box.setSelectedId(1); //sets the table seletion to opened file
+        
             if (reader != nullptr)
             {
                 ScopedPointer<AudioFormatReaderSource> newSource = new AudioFormatReaderSource (reader, true);
@@ -283,30 +282,40 @@ private:
         int count = 1;
         while(file.good()){
             getline ( file, value, '\n' );
-            
+            value = editData(value);
+            box.addItem(value,count);
             count++;
         }
-        box.addItem(value,count);
+       
         
     }
-    /*
-     
+    
     string editData(string val){
         string spacer = "                  |                      ";
         size_t start = 0;
+        string temp;
         // look for end of sentence
-        size_t finish = val.find_first_of(",", start);
-        
-        if (finish != string::npos)
-        {
-            // end of sentence was found, do something here.
-            cout << finish
-            // now find start of next sentence
-            start = val.find_first_not_of(" \t\n", finish+1);
+        for(int i = 0; i < 4; i ++){
+            size_t finish = val.find_first_of(".,",start);
+            cout << "END: "<< finish << endl;
+            if (finish != string::npos)
+            {
+                // end of sentence was found, do something here.
+                cout << val.substr(start, finish-start) << endl;
+                if(i < 3){
+                    temp += val.substr(start, finish-start) + spacer;
+                }
+                else{
+                    temp += val.substr(start, finish-start);
+                }
+                // now find start of next sentence
+                start = val.find_first_not_of(" \t\n", finish+1);
+                cout << "START: " << start << endl;
         }
-        return val;
+     }
+        return temp;
     }
-    */
+    
     
     TextButton openButton;
     TextButton playButton;
